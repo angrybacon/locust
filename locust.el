@@ -5,7 +5,7 @@
 ;; Author: Mathieu Marques <mathieumarques78@gmail.com>
 ;; Created: May 20, 2017
 ;; Homepage: https://github.com/angrybacon/locust
-;; Keywords: convenience, faces, frames
+;; Keywords: convenience, frames
 
 ;; This program is free software. You can redistribute it and/or modify it under
 ;; the terms of the Do What The Fuck You Want To Public License, version 2 as
@@ -31,38 +31,15 @@
   "Focus the current window."
   :group 'windows)
 
-(defface locust-dim-face '((t :background "black"))
-  "Face to use for the windows to dim."
-  :group 'locust)
-
 (defvar locust-last-buffer nil
   "Keep track of the last buffer.")
-
-(defvar locust-face-remap-list nil
-  "Keep track of the temporary face remappings.")
-
-;; (set-face-attribute 'locust-dim-face nil :background "black")
 
 (defun locust-focus ()
   "Focus the current window."
   (let ((current-buffer (current-buffer)))
     (unless (eq current-buffer locust-last-buffer)
-      ;; (message "--------------------------------------------------------------------------------")
-      ;; (message "%s %s" current-buffer locust-last-buffer)
-      (let ((remap))
-        ;; (message "----------------------------------------")
-        ;; (message "%s" locust-face-remap-list)
-        (while (setq remap (pop locust-face-remap-list))
-          (face-remap-remove-relative remap)))
-      (let ((current-window (frame-selected-window)))
-        ;; (message "----------------------------------------")
-        (dolist (window (window-list))
-          (with-selected-window window
-            ;; (message "- %s" window)
-            (unless (eq window current-window)
-              ;; (message "  %s" (current-buffer))
-              (push (face-remap-add-relative 'default 'locust-dim-face)
-                    locust-face-remap-list)))))
+      (let ((locust-mode nil))
+        (balance-windows))
       (setq locust-last-buffer current-buffer))))
 
 ;;;###autoload
