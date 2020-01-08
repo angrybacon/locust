@@ -25,22 +25,27 @@
 
 ;;; Code:
 
+
 (require 'face-remap)
+
 
 (defgroup locust nil
   "Focus the current window."
   :group 'windows)
 
+
 (defvar locust-last-buffer nil
   "Keep track of the last buffer.")
 
-(defun locust-focus ()
+
+(defun locust-focus (&rest rest)
   "Focus the current window."
-  (let ((current-buffer (current-buffer)))
-    (unless (eq current-buffer locust-last-buffer)
-      (let ((locust-mode nil))
-        (balance-windows))
-      (setq locust-last-buffer current-buffer))))
+  (unless (or (one-window-p)
+              (window-minibuffer-p))
+    (let ((delta (- 40 (window-height)))
+          (window (selected-window)))
+      (enlarge-window (window-resizable window delta)))))
+
 
 ;;;###autoload
 (define-minor-mode locust-mode
@@ -49,8 +54,13 @@ This global minor mode highlights the current window by enlarging it.
 Optionally, it also highlights the window's background."
   :global t
   (if locust-mode
-      (add-hook 'post-command-hook #'locust-focus)
-    (remove-hook 'post-command-hook #'locust-focus)))
+      (progn
+        (advice-add 'other-window :after #'locust-focus)
+        (advice-add 'select-window :after #'locust-focus))
+    (advice-remove 'other-window #'locust-focus)
+    (advice-remove 'select-window #'locust-focus)))
+
 
 (provide 'locust)
+
 ;;; locust.el ends here
